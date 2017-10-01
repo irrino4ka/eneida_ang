@@ -64,80 +64,72 @@
             </script>
         </div>
         <script>
+
+            var eneidaUrl = 'http://localhost:3000/api/eneida/';
+
             var app = angular.module('mainApp', ['ngRoute']);
             
             app.controller('MainCntrl', function ($scope, $location, $http) {
-              $http.get('http://localhost:3000/api/eneida').success(function(data){
-                console.debug(data);
-                $scope.eneida = data;
-                $scope.delete = function (id){
-                    $http(
-                        {
-                          method: 'DELETE',
-                          url: 'http://localhost:3000/api/eneida/' + id
-                        })
-                        .success(function() {
-                            $scope.eneida = $scope.eneida.filter(function(e) {return e.id !== id;});
-                            //window.location.replace('/');
-                        })
-                    
-                }
+                $http.get(eneidaUrl).success(function(data){
+                    $scope.eneida = data;
+                    $scope.delete = function (id) {
+                        $http(
+                            {
+                                method: 'DELETE',
+                                url: eneidaUrl + id
+                            })
+                            .success(function() {
+                                $scope.eneida = $scope.eneida.filter(function(e) {return e.id !== id;});
+                                //window.location.replace('/');
+                            })
+                    }
 
-                $scope.submit = function() {
-
-                    $http(
-                        {
-                          method: 'POST',
-                          url: 'http://localhost:3000/api/eneida/',
-                          data: JSON.stringify({
-                            id : $scope.row,
-                            text : $scope.text
-                          })
+                    $scope.submit = function() {
+                        $http(
+                            {
+                                method: 'POST',
+                                url: eneidaUrl,
+                                data: JSON.stringify({
+                                    text : $scope.text
+                                })
+                            })
+                        .success(function(data){
+                            $scope.eneida.push(data);
+                            console.log(data)
                         })
-                    .success(function(data){
-                        $scope.eneida.push(data);
-                        console.log(data)
-                    })
-                };
-
-              })
-              
-            
+                    };
+                })
             })
             app.controller('EditEneidaRowController', function($scope, $routeParams, $location, $http) {
-                $http.get('http://localhost:3000/api/eneida/' + $routeParams.id).success(function(data){
-                $scope.row = data.text;
-                $scope.submit = function() {
-                    $http(
-                        {
-                          method: 'PUT',
-                          url: 'http://localhost:3000/api/eneida/' + $routeParams.id,
-                          data: JSON.stringify({
-                            id : $routeParams.id,
-                            text : $scope.row
-                          })
+                $http.get(eneidaUrl + $routeParams.id).success(function(data){
+                    $scope.row = data.text;
+                    $scope.submit = function() {
+                        $http(
+                            {
+                                method: 'PUT',
+                                url: eneidaUrl + $routeParams.id,
+                                data: JSON.stringify({
+                                    id : $routeParams.id,
+                                    text : $scope.row
+                                })
+                            })
+                        .success(function(data){
+                            window.location.replace('/');
                         })
-                    .success(function(data){
-                        console.debug(data);
-                        window.location.replace('/');
-                    })
-                };
-              })
-              
-                           
+                    };
+                })
             })
 
             app.config(['$routeProvider', function ($routeProvider) {
-              $routeProvider
-                .when('/', {
-                  templateUrl: '/index.html',
-                  controller: 'MainCntrl'
-                })
-            
-                .when('/:id', {
-                  templateUrl: '/edit.html',
-                  controller: 'EditEneidaRowController'
-               });
+                $routeProvider
+                    .when('/', {
+                        templateUrl: '/index.html',
+                        controller: 'MainCntrl'
+                    })
+                    .when('/:id', {
+                        templateUrl: '/edit.html',
+                        controller: 'EditEneidaRowController'
+                    });
             }]);
               
         </script>
